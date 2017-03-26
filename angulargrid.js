@@ -334,7 +334,7 @@
 
             setTimeout(function() {
               scrollNs.scrollContInfo = getScrollContainerInfo();
-              scrollNs.scrollContInfo.$elm.on('scroll', throttle(scrollHandler, this.scrollInterval));
+              scrollNs.scrollContInfo.$elm.on('scroll', throttle(scrollHandler, options.scrollInterval));
             }, 0);
 
             //function to get column width and number of columns
