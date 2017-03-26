@@ -663,7 +663,7 @@
                 reflowGrids();
               }, 100);
             }
-            if (this.enableResizeHandler) {
+            if (options.enableResizeHandler) {
               win.on('resize', windowResizeCallback);
             }
             //add instance to factory if id is assigned
