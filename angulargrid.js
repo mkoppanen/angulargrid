@@ -316,17 +316,17 @@
             /***** code for infiniteScroll end ******/
 
             //scroll event on scroll container element to refresh dom depending on scroll positions
-            function scrollHandler() {
-              var scrollTop = this.scrollTop || this.scrollY;
+            function scrollHandler(ev) {
+              var scrollTop = ev.target.scrollTop || ev.target.scrollY;
               if (options.performantScroll) refreshDomElm(scrollTop);
               if (scope.infiniteScroll) infiniteScroll(scrollTop);
             }
               
             function throttle(fn, wait) {
               var time = Date.now();
-              return function() {
+              return function(ev) {
                 if ((time + wait - Date.now()) < 0) {
-                  fn();
+                  fn(ev);
                   time = Date.now();
                 }
               }
