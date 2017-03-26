@@ -37,6 +37,8 @@
     scrollContainer: 'body',
     infiniteScrollDelay: 3000,
     infiniteScrollDistance: 100,
+    scrollInterval: 100,
+    enableResizeHandler : true,
   };
 
   var $ = angular.element;
@@ -112,7 +114,9 @@
             scrollContainer: '@agScrollContainer',
             infiniteScroll: '&agInfiniteScroll',
             infiniteScrollDistance: '=agInfiniteScrollDistance',
-            infiniteScrollDelay: '=agInfiniteScrollDelay'
+            infiniteScrollDelay: '=agInfiniteScrollDelay',
+            scrollInterval: '=agScrollInterval',
+            enableResizeHandler: '=agEnableResizeHandler'
           },
           link: function(scope, element, attrs) {
             var domElm = element[0],
@@ -320,7 +324,7 @@
 
             setTimeout(function() {
               scrollNs.scrollContInfo = getScrollContainerInfo();
-              scrollNs.scrollContInfo.$elm.on('scroll', scrollHandler);
+              scrollNs.scrollContInfo.$elm.on('scroll', setInterval(scrollHandler, this.scrollInterval));
             }, 0);
 
             //function to get column width and number of columns
@@ -659,8 +663,9 @@
                 reflowGrids();
               }, 100);
             }
-            win.on('resize', windowResizeCallback);
-
+            if (this.enableResizeHandler) {
+              win.on('resize', windowResizeCallback);
+            }
             //add instance to factory if id is assigned
             if (agId) {
               angularGridInstance[agId] = {
