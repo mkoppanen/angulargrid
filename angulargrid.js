@@ -194,7 +194,7 @@
 
               var $elm = options.scrollContainer === 'body' ? win : container;
               return {
-                height: (typeof $elm === 'undefined') ? 0 : ($elm[0].innerHeight || $elm[0].offsetHeight),
+                height: (typeof $elm === 'undefined' || !Array.isArray($elm) || $elm.length < 1) ? 0 : ($elm[0].innerHeight || $elm[0].offsetHeight),
                 scrollHeight: contElm.scrollHeight,
                 startFrom: findPos(domElm, contElm).top,
                 $elm: $elm
