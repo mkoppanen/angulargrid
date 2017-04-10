@@ -189,14 +189,18 @@
             }
 
             function getScrollContainerInfo() {
-              var container = $(document.querySelector(options.scrollContainer)),
-                contElm = container[0];
+              var container = ionic.DomUtil.getParentWithClass(domElm, 'ionic-scroll')
+ 
+              if (!container) {
+                return null;   
+              }
 
-              var $elm = options.scrollContainer === 'body' ? win : container;
+              var $elm = $(container)
+
               return {
-                height: (typeof $elm === 'undefined' || typeof $elm[0] === 'undefined') ? 0 : ($elm[0].innerHeight || $elm[0].offsetHeight),
-                scrollHeight: contElm.scrollHeight,
-                startFrom: findPos(domElm, contElm).top,
+                height: ($elm[0].innerHeight || $elm[0].offsetHeight),
+                scrollHeight: $elm[0].scrollHeight,
+                startFrom: findPos(domElm, $elm[0]).top,
                 $elm: $elm
               };
             }
@@ -211,7 +215,7 @@
 
               var elmInfo, from, to,
                 pageSize = options.pageSize,
-                scrollContHeight = scrollNs.scrollContInfo.height,
+                scrollContHeight = (scrollNs.scrollContInfo || {}).height,
                 pageHeight = scrollContHeight * pageSize,
                 totalPages = Math.ceil(scrollBodyHeight / pageHeight),
                 pageNo = 0;
@@ -272,6 +276,7 @@
               scrollNs.lastScrollPosition = scrollTop;
               var filteredElm;
               if (scrollNs.isBusy) return;
+              if (!scrollNs.scrollContInfo) return;
               var currentPage = 0,
                 pageSize = options.pageSize;
 
@@ -302,7 +307,7 @@
             }
 
             function infiniteScroll(scrollTop) {
-              if (scrollNs.isLoading || !scope.model.length) return;
+              if (scrollNs.isLoading || !scope.model.length || !scrollNs.scrollContInfo) return;
               var scrollHeight = scrollNs.scrollContInfo.scrollHeight,
                 contHeight = scrollNs.scrollContInfo.height;
 
@@ -315,25 +320,25 @@
             /***** code for infiniteScroll end ******/
 
             //scroll event on scroll container element to refresh dom depending on scroll positions
+
             function scrollHandler(ev) {
-              var scrollTop = ev.target.scrollTop || ev.target.scrollY;
-              if (options.performantScroll) refreshDomElm(scrollTop);
-              if (scope.infiniteScroll) infiniteScroll(scrollTop);
+              ionic.requestAnimationFrame(function() {
+
+                var scrollTop = ev.target.scrollTop || ev.target.scrollY;
+
+                if (options.performantScroll) refreshDomElm(scrollTop);
+                if (scope.infiniteScroll) infiniteScroll(scrollTop);
+              })
             }
               
-            function throttle(fn, wait) {
-              var time = Date.now();
-              return function(ev) {
-                if ((time + wait - Date.now()) < 0) {
-                  fn(ev);
-                  time = Date.now();
-                }
-              }
-            }
-
             setTimeout(function() {
-              scrollNs.scrollContInfo = getScrollContainerInfo();
-              scrollNs.scrollContInfo.$elm.on('scroll', throttle(scrollHandler, options.scrollInterval));
+              var scrollInfo = getScrollContainerInfo();
+
+              if (!scrollInfo) {
+                return;   
+              }
+              scrollNs.scrollContInfo = scrollInfo;
+              scrollNs.scrollContInfo.$elm.on('scroll', ionic.debounce(scrollHandler, options.scrollInterval));
             }, 0);
 
             //function to get column width and number of columns
@@ -531,7 +536,8 @@
 
                     //update the scroll container info
                     if (options.performantScroll || scope.infiniteScroll) {
-                      scrollNs.scrollContInfo = getScrollContainerInfo();
+                      var scrollInfo = getScrollContainerInfo();
+                      scrollNs.scrollContInfo = scrollInfo;
                     }
 
                     //if performantScroll is enabled calculate the page info, and reflect dom elements to reflect visible pages
