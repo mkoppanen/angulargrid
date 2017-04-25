@@ -39,6 +39,7 @@
     infiniteScrollDistance: 100,
     scrollInterval: 100,
     enableResizeHandler : true,
+
   };
 
   var $ = angular.element;
@@ -128,8 +129,6 @@
 
             element.addClass('angular-grid');
 
-
-
             //get the user input options
             var options;
 
@@ -196,6 +195,10 @@
               }
 
               var $elm = $(container)
+
+              if (($elm[0].innerHeight || $elm[0].offsetHeight) == 0 && $elm[0].scrollHeight == 0) {
+                return null;
+              }
 
               return {
                 height: ($elm[0].innerHeight || $elm[0].offsetHeight),
@@ -482,11 +485,15 @@
                       return;
                     }
 
+                    var scrollInfo = getScrollContainerInfo();
+
+                    if (!scrollInfo) {
+                      return;
+                    }
+
                     var listElmHeights = [],
                       listElmPosInfo = [],
                       item, i, ln;
-
-
 
                     //find height with clones
                     for (i = 0, ln = clones.length; i < ln; i++) {
@@ -535,10 +542,7 @@
                     clones.remove();
 
                     //update the scroll container info
-                    if (options.performantScroll || scope.infiniteScroll) {
-                      var scrollInfo = getScrollContainerInfo();
-                      scrollNs.scrollContInfo = scrollInfo;
-                    }
+                    scrollNs.scrollContInfo = scrollInfo;
 
                     //if performantScroll is enabled calculate the page info, and reflect dom elements to reflect visible pages
                     if (options.performantScroll) {
