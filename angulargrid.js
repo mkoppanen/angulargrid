@@ -324,7 +324,7 @@
 
             //scroll event on scroll container element to refresh dom depending on scroll positions
 
-            function scrollHandler(ev) {
+            function scrollHandlerImpl(ev) {
               ionic.requestAnimationFrame(function() {
 
                 var scrollTop = ev.target.scrollTop || ev.target.scrollY;
@@ -333,6 +333,9 @@
                 if (scope.infiniteScroll) infiniteScroll(scrollTop);
               })
             }
+
+            var scrollHandler = ionic.debounce(scrollHandlerImpl, options.scrollInterval)
+              
               
             setTimeout(function() {
               var scrollInfo = getScrollContainerInfo();
@@ -341,7 +344,7 @@
                 return;   
               }
               scrollNs.scrollContInfo = scrollInfo;
-              scrollNs.scrollContInfo.$elm.on('scroll', ionic.debounce(scrollHandler, options.scrollInterval));
+              scrollNs.scrollContInfo.$elm.on('scroll', scrollHandler);
             }, 0);
 
             //function to get column width and number of columns
